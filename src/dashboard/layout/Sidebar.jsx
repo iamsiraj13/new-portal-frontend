@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import {
+  CirclePlus,
   CircleUserRound,
   LayoutGrid,
   LogOut,
@@ -8,9 +9,14 @@ import {
   UserRoundPlus,
   UsersRound,
 } from "lucide-react";
+import { useContext } from "react";
+import storeContext from "../../contex/storeContext";
 
 const Sidebar = () => {
   const { pathname } = useLocation();
+
+  const { store } = useContext(storeContext);
+
   return (
     <div className="w-[250px] h-screen fixed top-0 left-0 bg-white">
       <div className="h-[70px]  flex justify-center items-center">
@@ -23,21 +29,89 @@ const Sidebar = () => {
         </Link>
       </div>
       <ul className="px-3 flex flex-col gap-y-1 font-medium">
-        <li>
-          <Link
-            to="/dashboard/admin"
-            className={` ${
-              pathname === "/dashboard/admin"
-                ? "bg-gray-600 text-white"
-                : "text-gray-600"
-            } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
-          >
-            <span>
-              <LayoutGrid size={16} />
-            </span>
-            <span>Dashboard</span>
-          </Link>
-        </li>
+        {store?.userInfo?.role === "admin" ? (
+          <>
+            <li>
+              <Link
+                to="/dashboard/admin"
+                className={` ${
+                  pathname === "/dashboard/admin"
+                    ? "bg-gray-600 text-white"
+                    : "text-gray-600"
+                } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
+              >
+                <span>
+                  <LayoutGrid size={16} />
+                </span>
+                <span>Dashboard</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/dashboard/addwriter"
+                className={` ${
+                  pathname === "/dashboard/addwriter"
+                    ? "bg-gray-600 text-white"
+                    : "text-gray-600"
+                } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
+              >
+                <span>
+                  <UserRoundPlus size={16} />
+                </span>
+                <span>Add Writer</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/dashboard/writers"
+                className={` ${
+                  pathname === "/dashboard/writers"
+                    ? "bg-gray-600 text-white"
+                    : "text-gray-600"
+                } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
+              >
+                <span>
+                  <UsersRound size={16} />
+                </span>
+                <span>Writers</span>
+              </Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link
+                to="/dashboard/writer"
+                className={` ${
+                  pathname === "/dashboard/writer"
+                    ? "bg-gray-600 text-white"
+                    : "text-gray-600"
+                } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
+              >
+                <span>
+                  <LayoutGrid size={16} />
+                </span>
+                <span>Dashboard</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/dashboard/create-news"
+                className={` ${
+                  pathname === "/dashboard/create-news"
+                    ? "bg-gray-600 text-white"
+                    : "text-gray-600"
+                } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
+              >
+                <span>
+                  <CirclePlus size={16} />
+                </span>
+                <span>Add News</span>
+              </Link>
+            </li>
+          </>
+        )}
+
         <li>
           <Link
             to="/dashboard/news"
@@ -53,36 +127,7 @@ const Sidebar = () => {
             <span>News</span>
           </Link>
         </li>
-        <li>
-          <Link
-            to="/dashboard/addwriter"
-            className={` ${
-              pathname === "/dashboard/addwriter"
-                ? "bg-gray-600 text-white"
-                : "text-gray-600"
-            } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
-          >
-            <span>
-              <UserRoundPlus size={16} />
-            </span>
-            <span>Add Writer</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/dashboard/writers"
-            className={` ${
-              pathname === "/dashboard/writers"
-                ? "bg-gray-600 text-white"
-                : "text-gray-600"
-            } flex gap-2 px-3 py-2 items-center text-gray-600 hover:bg-gray-600 hover:text-white rounded-lg`}
-          >
-            <span>
-              <UsersRound size={16} />
-            </span>
-            <span>Writers</span>
-          </Link>
-        </li>
+
         <li>
           <Link
             to="/dashboard/profile"

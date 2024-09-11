@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import thumb from "../../assets/profile.jpg";
-import { Eye, SquarePen, Trash } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, SquarePen, Trash } from "lucide-react";
 const NewsContent = () => {
   return (
     <div>
@@ -35,7 +35,7 @@ const NewsContent = () => {
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]?.map((_, index) => (
+            {[1, 2, 3, 4, 5, 6, 7]?.map((_, index) => (
               <>
                 <tr className="bg-white  border-b" key={index}>
                   <td className="px-7 py-3">1</td>
@@ -74,6 +74,28 @@ const NewsContent = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* pagination  */}
+      <div className="flex items-center justify-end px-10 gap-x-3 text-gray-600">
+        <div className="flex gap-x-3 justify-center items-center">
+          <p className="px-4 py-3 font-semibold text-sm ">News Per Page</p>
+          <select className="px-3 py-2 rounded-md outline-0 border border-gray-300 focus:border-green-500 h-10">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <p className="px-6 py-3 font-semibold text-sm">6/22 - of 5</p>
+        <div className="flex items-center gap-x-3">
+          <span className="cursor-pointer">
+            <ChevronLeft />
+          </span>
+          <span className="cursor-pointer">
+            <ChevronRight />
+          </span>
+        </div>
       </div>
     </div>
   );

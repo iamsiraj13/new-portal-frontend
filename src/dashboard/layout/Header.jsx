@@ -1,5 +1,8 @@
+import { useContext } from "react";
 import profile from "../../assets/profile.jpg";
+import storeContext from "../../contex/storeContext";
 const Header = () => {
+  const { store } = useContext(storeContext);
   return (
     <div className="pl-4 pr-4 fixed w-[calc(100vw-250px)] top-4 z-50">
       <div className="w-full rounded h-[70px] flex justify-between items-center p-4 bg-white">
@@ -12,9 +15,11 @@ const Header = () => {
           <div className="flex gap-x-3">
             <div className="flex flex-col justify-center items-end">
               <span className="font-bold text-[16px] leading-none">
-                Sirajul Islam
+                {store?.userInfo?.name}
               </span>
-              <span className="text-[14px] font-medium">Admin</span>
+              <span className="text-[14px] font-medium">
+                {store?.userInfo?.role}
+              </span>
             </div>
             <img
               src={profile}
