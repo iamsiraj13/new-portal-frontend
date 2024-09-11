@@ -1,12 +1,13 @@
 import axios from "axios";
 import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { base_url } from "../../config/config";
 import storeContext from "../../contex/storeContext";
 import toast from "react-hot-toast";
 
 const Addwriter = () => {
   const { store } = useContext(storeContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState({
     name: "",
@@ -32,7 +33,8 @@ const Addwriter = () => {
         },
       });
       setLoading(false);
-      console.log(data);
+      toast.success(data.message);
+      navigate("/dashboard/writers");
     } catch (error) {
       setLoading(false);
       toast.error(error.response.data.message);
@@ -133,8 +135,11 @@ const Addwriter = () => {
               />
             </div>
           </div>
-          <button className="px-3 py-[6px] border border-transparent bg-gray-600 rounded-sm text-white hover:bg-white hover:border hover:border-gray-600 hover:text-gray-600">
-            Add Writer
+          <button
+            className="px-3 py-[6px] border border-transparent bg-gray-600 rounded-sm text-white hover:bg-white hover:border hover:border-gray-600 hover:text-gray-600"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Add Writer"}
           </button>
         </form>
       </div>

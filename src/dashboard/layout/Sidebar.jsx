@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import {
   CirclePlus,
@@ -14,8 +14,14 @@ import storeContext from "../../contex/storeContext";
 
 const Sidebar = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  const { store } = useContext(storeContext);
+  const { store, dispatch } = useContext(storeContext);
+  const logout = () => {
+    localStorage.removeItem("newsToken");
+    dispatch({ type: "logout" });
+    navigate("/login");
+  };
 
   return (
     <div className="w-[250px] h-screen fixed top-0 left-0 bg-white">
@@ -144,8 +150,8 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link
-            to="/dashboard/logout"
+          <div
+            onClick={logout}
             className={` ${
               pathname === "/dashboard/logout"
                 ? "bg-gray-600 text-white"
@@ -156,7 +162,7 @@ const Sidebar = () => {
               <LogOut size={16} />
             </span>
             <span>Logout</span>
-          </Link>
+          </div>
         </li>
       </ul>
     </div>
