@@ -1,7 +1,7 @@
 import { CloudUpload } from "lucide-react";
 import { Link } from "react-router-dom";
 import JoditEditor from "jodit-react";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Gallery from "../components/Gallery";
 import axios from "axios";
 import { base_url } from "../../config/config";
@@ -54,6 +54,31 @@ const CreateNews = () => {
     }
   };
 
+  const [images, setImages] = useState([]);
+  const get_images = async () => {
+    try {
+      setLoader(true);
+
+      const { data } = await axios.get(`${base_url}/images`, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+      setImages(data.images);
+
+      console.log(data);
+      setLoader(false);
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    get_images();
+  }, []);
+
   return (
     <div className="bg-white rounded-md">
       <div className="flex justify-between p-4 items-center">
@@ -88,7 +113,7 @@ const CreateNews = () => {
           </div>
           <div className="mb-6">
             <label
-              htmlFor="img"
+              htmlFor="images"
               className={`w-full min-h-[180px] max-h-max flex rounded text-gray-500 gap-2 justify-center items-center cursor-pointer border border-dashed border-gray-500 overflow-hidden`}
             >
               {img ? (
@@ -143,6 +168,8 @@ const CreateNews = () => {
           </div>
         </form>
         <div className="">
+          <input type="file" multiple id="images" />
+
           {show === true && <Gallery setShow={setShow} images={[]} />}
         </div>
       </div>
