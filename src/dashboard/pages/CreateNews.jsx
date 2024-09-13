@@ -64,13 +64,9 @@ const CreateNews = () => {
           Authorization: `Bearer ${store.token}`,
         },
       });
-      setImages(data.images);
 
-      console.log(data);
       setLoader(false);
-      toast.success(data.message);
     } catch (error) {
-      toast.error(error.response.data.message);
       setLoader(false);
     }
   };
@@ -78,6 +74,32 @@ const CreateNews = () => {
   useEffect(() => {
     get_images();
   }, []);
+
+  // Handle multiple images
+
+  const [imageLoader, setImageLoader] = useState(false);
+  const imagesHandle = async (e) => {
+    const files = e.target.files;
+
+    try {
+      const formData = new FormData();
+
+      for (let i = 0; i < files.length; i++) {
+        formData.append("images", files[i]);
+      }
+      setImageLoader(true);
+      const { data } = await axios.post(`${base_url}/images/add`, {
+        Authorization: `Bearer ${store.token}`,
+      });
+      setImages([...images, data.images]);
+      setImageLoader(false);
+      toast.success(data.message);
+    } catch (error) {
+      console.log(error);
+      setImageLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
 
   return (
     <div className="bg-white rounded-md">
@@ -113,7 +135,7 @@ const CreateNews = () => {
           </div>
           <div className="mb-6">
             <label
-              htmlFor="images"
+              htmlFor="img"
               className={`w-full min-h-[180px] max-h-max flex rounded text-gray-500 gap-2 justify-center items-center cursor-pointer border border-dashed border-gray-500 overflow-hidden`}
             >
               {img ? (
@@ -168,7 +190,7 @@ const CreateNews = () => {
           </div>
         </form>
         <div className="">
-          <input type="file" multiple id="images" />
+          <input onChange={imagesHandle} type="file" multiple id="images" />
 
           {show === true && <Gallery setShow={setShow} images={[]} />}
         </div>

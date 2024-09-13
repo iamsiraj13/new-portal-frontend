@@ -17,7 +17,7 @@ const Gallery = ({ setShow, images }) => {
             </div>
             <div className="mb-6">
               <label
-                htmlFor="img"
+                htmlFor="images"
                 className={`w-full h-[180px] flex rounded text-gray-500 gap-2 justify-center items-center cursor-pointer border border-dashed border-gray-500`}
               >
                 <div className="flex justify-center items-center flex-col gap-y-2">
