@@ -29,6 +29,7 @@ const CreateNews = () => {
     }
   };
 
+  // create news
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -55,6 +56,7 @@ const CreateNews = () => {
   };
 
   const [images, setImages] = useState([]);
+  // get multiple images for description
   const get_images = async () => {
     try {
       setLoader(true);
@@ -65,8 +67,21 @@ const CreateNews = () => {
         },
       });
 
+      setImages(data.images);
       setLoader(false);
     } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message);
+        setLoader(false);
+      } else {
+        toast.error("An error occurred while fetching images.");
+        setLoader(false);
+      }
+    } finally {
       setLoader(false);
     }
   };
@@ -88,14 +103,16 @@ const CreateNews = () => {
         formData.append("images", files[i]);
       }
       setImageLoader(true);
-      const { data } = await axios.post(`${base_url}/images/add`, {
-        Authorization: `Bearer ${store.token}`,
+      const { data } = await axios.post(`${base_url}/images/add`, formData, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
       });
       setImages([...images, data.images]);
+
       setImageLoader(false);
       toast.success(data.message);
     } catch (error) {
-      console.log(error);
       setImageLoader(false);
       toast.error(error.response.data.message);
     }
@@ -190,9 +207,17 @@ const CreateNews = () => {
           </div>
         </form>
         <div className="">
-          <input onChange={imagesHandle} type="file" multiple id="images" />
+          <input
+            onChange={imagesHandle}
+            type="file"
+            multiple
+            id="images"
+            className="hidden"
+          />
 
-          {show === true && <Gallery setShow={setShow} images={[]} />}
+          {show === true && (
+            <Gallery setShow={setShow} images={images} loader={loader} />
+          )}
         </div>
       </div>
     </div>
