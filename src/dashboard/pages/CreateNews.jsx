@@ -48,6 +48,9 @@ const CreateNews = () => {
       });
 
       setLoader(false);
+      setTitle("");
+      setDescription("");
+      setImg("");
       toast.success(data.message);
     } catch (error) {
       toast.error(error.response.data.message);

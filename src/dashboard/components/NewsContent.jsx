@@ -1,7 +1,42 @@
 import { Link } from "react-router-dom";
-import thumb from "../../assets/profile.jpg";
 import { ChevronLeft, ChevronRight, Eye, SquarePen, Trash } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import storeContext from "../../contex/storeContext";
+import { base_url } from "../../config/config";
+import axios from "axios";
+import toast from "react-hot-toast";
+import moment from "moment";
+import { convert } from "html-to-text";
 const NewsContent = () => {
+  const { store } = useContext(storeContext);
+
+  const [news, setNews] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [allData, setAllData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
+
+  const get_news = async () => {
+    try {
+      setLoader(true);
+      const { data } = await axios.get(`${base_url}/news`, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+      setLoader(false);
+      setAllData(data.news);
+      setNews(data.news);
+    } catch (error) {
+      setLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    get_news();
+  }, []);
+
   return (
     <div>
       <div className="px-4 py-3 flex gap-x-3">
@@ -35,43 +70,46 @@ const NewsContent = () => {
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3, 4, 5, 6, 7]?.map((_, index) => (
-              <>
-                <tr className="bg-white  border-b" key={index}>
-                  <td className="px-7 py-3">1</td>
-                  <td className="px-7 py-3 font-medium">
-                    India goes against bangladesh
-                  </td>
-                  <td className="px-7 py-3 w-[40px] h-[40px]">
-                    <img src={thumb} alt="" />
-                  </td>
-                  <td className="px-7 py-3">travel</td>
-                  <td className="px-7 py-3">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nesciunt, qui!
-                  </td>
-                  <td className="px-7 py-3">11/07/24</td>
-                  <td className="px-7 py-3">
-                    <span className="px-2 py-[2px] bg-green-100 text-green-800 rounded-lg text-xs cursor-pointer">
-                      active
-                    </span>
-                  </td>
-                  <td className="px-7 py-3">
-                    <div className="flex justify-start gap-x-2 text-white items-center">
-                      <Link className="p-[6px] bg-green-500 rounded hover:shadow-sm hover:shadow-green-500">
-                        <Eye size={16} />
-                      </Link>
-                      <Link className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500">
-                        <SquarePen size={16} />
-                      </Link>
-                      <div className="p-[6px] bg-red-500 rounded hover:shadow-sm hover:shadow-red-500">
-                        <Trash size={16} />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </>
-            ))}
+            {news.length > 0 &&
+              news
+                .slice((page - 1) * perPage, page * perPage)
+                .map((item, index) => (
+                  <>
+                    <tr className="bg-white  border-b" key={index}>
+                      <td className="px-7 py-3">{index + 1}</td>
+                      <td className="px-7 py-3 font-medium">{item?.title}</td>
+                      <td className="px-7 py-3 w-[40px] h-[40px]">
+                        <img src={item?.image} alt="" />
+                      </td>
+                      <td className="px-7 py-3">{item?.category}</td>
+                      <td className="px-7 py-3">
+                        {convert(item?.description).slice(0, 15)}..
+                      </td>
+                      <td className="px-7 py-3">
+                        {moment(item?.date).format("LL")}
+                      </td>
+
+                      <td className="px-7 py-3">
+                        <span className="px-2 py-[2px] bg-green-100 text-green-800 rounded-lg text-xs cursor-pointer">
+                          {item?.status}
+                        </span>
+                      </td>
+                      <td className="px-7 py-3">
+                        <div className="flex justify-start gap-x-2 text-white items-center">
+                          <Link className="p-[6px] bg-green-500 rounded hover:shadow-sm hover:shadow-green-500">
+                            <Eye size={16} />
+                          </Link>
+                          <Link className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500">
+                            <SquarePen size={16} />
+                          </Link>
+                          <div className="p-[6px] bg-red-500 rounded hover:shadow-sm hover:shadow-red-500">
+                            <Trash size={16} />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </>
+                ))}
           </tbody>
         </table>
       </div>
