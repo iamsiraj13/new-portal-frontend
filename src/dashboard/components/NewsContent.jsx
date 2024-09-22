@@ -13,8 +13,10 @@ const NewsContent = () => {
   const [news, setNews] = useState([]);
   const [loader, setLoader] = useState(false);
   const [allData, setAllData] = useState([]);
-  const [page, setPage] = useState(1);
+
   const [perPage, setPerPage] = useState(5);
+  const [pages, setPages] = useState(0);
+  const [page, setPage] = useState(1);
 
   const get_news = async () => {
     try {
@@ -37,6 +39,22 @@ const NewsContent = () => {
     get_news();
   }, []);
 
+  useEffect(() => {
+    if (news.length > 0) {
+      const calculatePage = Math.ceil(news.length / perPage);
+      setPages(calculatePage);
+    }
+  }, [news, perPage]);
+
+  // handle search
+  const handleSearch = (e) => {
+    const search = e.target.value;
+    const filterData = allData.filter(
+      (item) => item.title.toLowerCase().indexOf(search.toLowerCase()) > -1
+    );
+    setNews(filterData);
+    setPage(1);
+  };
   return (
     <div>
       <div className="px-4 py-3 flex gap-x-3">
@@ -48,6 +66,7 @@ const NewsContent = () => {
         </select>
         <input
           type="text"
+          onClick={handleSearch}
           className="px-3 py-2 rounded-sm outline-0 border border-gray-300 focus:border-green-500 h-10"
           placeholder="Search News"
         />
@@ -118,19 +137,35 @@ const NewsContent = () => {
       <div className="flex items-center justify-end px-10 gap-x-3 text-gray-600">
         <div className="flex gap-x-3 justify-center items-center">
           <p className="px-4 py-3 font-semibold text-sm ">News Per Page</p>
-          <select className="px-3 py-2 rounded-md outline-0 border border-gray-300 focus:border-green-500 h-10">
+          <select
+            className="px-3 py-2 rounded-md outline-0 border border-gray-300 focus:border-green-500 h-10"
+            value={perPage}
+            onChange={(e) => setPerPage(Number(e.target.value))}
+          >
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
           </select>
         </div>
-        <p className="px-6 py-3 font-semibold text-sm">6/22 - of 5</p>
+        <p className="px-6 py-3 font-semibold text-sm">
+          {(page - 1) * perPage + 1}/{news.length} - of {pages}
+        </p>
         <div className="flex items-center gap-x-3">
-          <span className="cursor-pointer">
+          <span
+            className="cursor-pointer"
+            onClick={() => {
+              if (page > 1) setPage(page - 1);
+            }}
+          >
             <ChevronLeft />
           </span>
-          <span className="cursor-pointer">
+          <span
+            className="cursor-pointer"
+            onClick={() => {
+              if (page < pages) setPage(page + 1);
+            }}
+          >
             <ChevronRight />
           </span>
         </div>
