@@ -46,6 +46,21 @@ const NewsContent = () => {
     }
   }, [news, perPage]);
 
+  // filter by status
+  const typeFilter = (e) => {
+    if (e.target.value === "") {
+      setNews(allData);
+      setPage(1);
+    } else {
+      const filterData = allData.filter(
+        (item) => item.status === e.target.value
+      );
+      setNews(filterData);
+      setPage(1);
+    }
+    setPage(1);
+  };
+
   // handle search
   const handleSearch = (e) => {
     const search = e.target.value;
@@ -58,15 +73,18 @@ const NewsContent = () => {
   return (
     <div>
       <div className="px-4 py-3 flex gap-x-3">
-        <select className="px-3 py-2 rounded-sm outline-0 border border-gray-300 focus:border-green-500 h-10">
+        <select
+          className="px-3 py-2 rounded-sm outline-0 border border-gray-300 focus:border-green-500 h-10"
+          onChange={typeFilter}
+        >
           <option value="">--Selety Type--</option>
-          <option value="pendin">Pending</option>
+          <option value="pending">Pending</option>
           <option value="active">Active</option>
           <option value="Deactive">Deactive</option>
         </select>
         <input
           type="text"
-          onClick={handleSearch}
+          onChange={handleSearch}
           className="px-3 py-2 rounded-sm outline-0 border border-gray-300 focus:border-green-500 h-10"
           placeholder="Search News"
         />
@@ -118,7 +136,10 @@ const NewsContent = () => {
                           <Link className="p-[6px] bg-green-500 rounded hover:shadow-sm hover:shadow-green-500">
                             <Eye size={16} />
                           </Link>
-                          <Link className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500">
+                          <Link
+                            to={`edit/${item?._id}`}
+                            className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500"
+                          >
                             <SquarePen size={16} />
                           </Link>
                           <div className="p-[6px] bg-red-500 rounded hover:shadow-sm hover:shadow-red-500">
@@ -140,7 +161,10 @@ const NewsContent = () => {
           <select
             className="px-3 py-2 rounded-md outline-0 border border-gray-300 focus:border-green-500 h-10"
             value={perPage}
-            onChange={(e) => setPerPage(Number(e.target.value))}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setPage(1);
+            }}
           >
             <option value="5">5</option>
             <option value="10">10</option>

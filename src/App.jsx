@@ -13,6 +13,7 @@ import WriterIndex from "./dashboard/pages/WriterIndex";
 import CreateNews from "./dashboard/pages/CreateNews";
 import { useContext } from "react"; // Assuming storeContext is already set up
 import storeContext from "./contex/storeContext"; // Path to storeContext
+import EditNews from "./dashboard/pages/EditNews";
 
 const App = () => {
   const { store } = useContext(storeContext); // Getting userInfo from the store
@@ -51,6 +52,14 @@ const App = () => {
               element={
                 <ProtectRole role="writer">
                   <CreateNews />
+                </ProtectRole>
+              }
+            />
+            <Route
+              path="news/edit/:newsId"
+              element={
+                <ProtectRole role="writer">
+                  <EditNews />
                 </ProtectRole>
               }
             />

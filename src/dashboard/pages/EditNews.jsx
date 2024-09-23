@@ -1,0 +1,257 @@
+import { CloudUpload } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import JoditEditor from "jodit-react";
+import { useContext, useEffect, useRef, useState } from "react";
+import Gallery from "../components/Gallery";
+import axios from "axios";
+import storeContext from "../../contex/storeContext";
+import toast from "react-hot-toast";
+import { base_url } from "../../config/config";
+
+const CreateNews = () => {
+  const { newsId } = useParams();
+
+  const [show, setShow] = useState(false);
+  const { store } = useContext(storeContext);
+
+  const editor = useRef(null);
+  const [oldImage, setOldImage] = useState("");
+  const [title, setTitle] = useState("");
+  const [image, setImage] = useState("");
+  const [img, setImg] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [loader, setLoader] = useState(false);
+
+  const imageHandle = (e) => {
+    const { files } = e.target;
+    if (files.length > 0) {
+      setImg(URL.createObjectURL(files[0]));
+      setImage(files[0]);
+    }
+  };
+
+  // create news
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("new_image", image);
+    formData.append("old_image", oldImage);
+
+    try {
+      setLoader(true);
+
+      const { data } = await axios.put(
+        `${base_url}/news/update/${newsId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${store.token}`,
+          },
+        }
+      );
+
+      console.log(data);
+
+      setLoader(false);
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error.response.data.message);
+
+      setLoader(false);
+    }
+  };
+
+  const [images, setImages] = useState([]);
+  // get multiple images for description
+  const get_images = async () => {
+    try {
+      setLoader(true);
+
+      const { data } = await axios.get(`${base_url}/images`, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+
+      setImages(data.images);
+      setOldImage(data.img);
+      setLoader(false);
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message);
+        setLoader(false);
+      } else {
+        toast.error("An error occurred while fetching images.");
+        setLoader(false);
+      }
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    get_images();
+  }, []);
+
+  // Handle multiple images
+
+  const [imageLoader, setImageLoader] = useState(false);
+  const imagesHandle = async (e) => {
+    const files = e.target.files;
+
+    try {
+      const formData = new FormData();
+
+      for (let i = 0; i < files.length; i++) {
+        formData.append("images", files[i]);
+      }
+      setImageLoader(true);
+      const { data } = await axios.post(`${base_url}/images/add`, formData, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+      setImages([...images, data.images]);
+
+      setImageLoader(false);
+      toast.success(data.message);
+    } catch (error) {
+      setImageLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const get_news = async () => {
+    try {
+      const { data } = await axios.get(`${base_url}/news/${newsId}`, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+      setTitle(data?.news?.title);
+      setDescription(data?.news?.description);
+      setImage(data?.news?.image);
+      setImg(data?.news?.image);
+      setOldImage(data?.news?.image);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    get_news();
+  }, [newsId]);
+  return (
+    <div className="bg-white rounded-md">
+      <div className="flex justify-between p-4 items-center">
+        <h2 className="text-xl font-medium ">Edit News</h2>
+
+        <Link
+          to="/dashboard/news"
+          className="px-3 py-[6px] border border-transparent bg-gray-600 rounded-sm text-white hover:bg-white hover:border hover:border-gray-600 hover:text-gray-600"
+        >
+          News
+        </Link>
+      </div>
+
+      <div className="p-4">
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-y-2 mb-6">
+            <label
+              htmlFor="title"
+              className="text-md font-medium text-gray-600"
+            >
+              Title
+            </label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              type="text"
+              required
+              id="title"
+              placeholder="News Title"
+              className="px-3 py-2 rounded-md outline-0 border border-gray-300 focus:border-green-500 h-10"
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              htmlFor="img"
+              className={`w-full min-h-[180px] max-h-max flex rounded text-gray-500 gap-2 justify-center items-center cursor-pointer border border-dashed border-gray-500 overflow-hidden`}
+            >
+              {img ? (
+                <img
+                  src={img}
+                  className="w-full max-h-[600px] h-full  object-cover object-center"
+                />
+              ) : (
+                <div className="flex justify-center items-center flex-col gap-y-2">
+                  <span className="text-2xl">
+                    <CloudUpload />
+                  </span>
+                  <span>Select Image</span>
+                </div>
+              )}
+            </label>
+            <input
+              type="file"
+              id="img"
+              className="hidden"
+              onChange={imageHandle}
+            />
+          </div>
+          <div className="flex flex-col gap-y-2 mb-6">
+            <div className="flex justify-start items-center gap-x-2">
+              <h2>Description</h2>
+              <div onClick={() => setShow(true)}>
+                <span className="text-2xl cursor-pointer">
+                  <CloudUpload size={16} />
+                </span>
+              </div>
+            </div>
+            <div>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                tabIndex={1}
+                onBlur={(value) => setDescription(value)}
+                onChange={() => {}}
+              />
+            </div>
+          </div>
+          <div className="mt-4">
+            <button
+              type="submit"
+              className="px-3 py-[6px] bg-gray-600 rounded-sm text-white border border-transparent hover:bg-white hover:border-gray-600 hover:text-gray-600"
+              disabled={loader}
+            >
+              {loader ? "Loading..." : "Update News"}
+            </button>
+          </div>
+        </form>
+        <div className="">
+          <input
+            onChange={imagesHandle}
+            type="file"
+            multiple
+            id="images"
+            className="hidden"
+          />
+
+          {show === true && (
+            <Gallery setShow={setShow} images={images} loader={loader} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreateNews;
