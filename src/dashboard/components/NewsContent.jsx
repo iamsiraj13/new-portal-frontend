@@ -70,6 +70,29 @@ const NewsContent = () => {
     setNews(filterData);
     setPage(1);
   };
+
+  const [statusLoader, setStatusLoader] = useState(false);
+  const updateStatus = async (status, id) => {
+    try {
+      setStatusLoader(true);
+      const { data } = await axios.put(
+        `${base_url}/news/update-status/${id}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${store.token}`,
+          },
+        }
+      );
+      setStatusLoader(false);
+      toast.success(data.message);
+      get_news();
+    } catch (error) {
+      setStatusLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+
   return (
     <div>
       <div className="px-4 py-3 flex gap-x-3">
@@ -126,25 +149,72 @@ const NewsContent = () => {
                         {moment(item?.date).format("LL")}
                       </td>
 
-                      <td className="px-7 py-3">
-                        <span className="px-2 py-[2px] bg-green-100 text-green-800 rounded-lg text-xs cursor-pointer">
-                          {item?.status}
-                        </span>
-                      </td>
+                      {store?.userInfo?.role === "admin" ? (
+                        <td className="px-7 py-3">
+                          {item?.status === "pending" && (
+                            <span
+                              className="px-2 py-[2px] bg-green-100 text-orange-600 rounded-lg text-xs cursor-pointer"
+                              onClick={() => updateStatus("active", item?._id)}
+                            >
+                              {item?.status}
+                            </span>
+                          )}
+                          {item?.status === "active" && (
+                            <span
+                              className="px-2 py-[2px] bg-green-100 text-green-800 rounded-lg text-xs cursor-pointer"
+                              onClick={() =>
+                                updateStatus("deactive", item?._id)
+                              }
+                            >
+                              {item?.status}
+                            </span>
+                          )}
+                          {item?.status === "deactive" && (
+                            <span
+                              className="px-2 py-[2px] bg-green-100 text-red-800 rounded-lg text-xs cursor-pointer"
+                              onClick={() => updateStatus("active", item?._id)}
+                            >
+                              {item?.status}
+                            </span>
+                          )}
+                        </td>
+                      ) : (
+                        <td className="px-7 py-3">
+                          {item?.status === "pending" && (
+                            <span className="px-2 py-[2px] bg-green-100 text-orange-600 rounded-lg text-xs cursor-pointer">
+                              {item?.status}
+                            </span>
+                          )}
+                          {item?.status === "active" && (
+                            <span className="px-2 py-[2px] bg-green-100 text-green-800 rounded-lg text-xs cursor-pointer">
+                              {item?.status}
+                            </span>
+                          )}
+                          {item?.status === "deactive" && (
+                            <span className="px-2 py-[2px] bg-green-100 text-red-800 rounded-lg text-xs cursor-pointer">
+                              {item?.status}
+                            </span>
+                          )}
+                        </td>
+                      )}
                       <td className="px-7 py-3">
                         <div className="flex justify-start gap-x-2 text-white items-center">
                           <Link className="p-[6px] bg-green-500 rounded hover:shadow-sm hover:shadow-green-500">
                             <Eye size={16} />
                           </Link>
-                          <Link
-                            to={`edit/${item?._id}`}
-                            className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500"
-                          >
-                            <SquarePen size={16} />
-                          </Link>
-                          <div className="p-[6px] bg-red-500 rounded hover:shadow-sm hover:shadow-red-500">
-                            <Trash size={16} />
-                          </div>
+                          {store?.userInfo?.role === "writer" && (
+                            <div>
+                              <Link
+                                to={`edit/${item?._id}`}
+                                className="p-[6px] bg-orange-500 rounded hover:shadow-sm hover:orange-green-500"
+                              >
+                                <SquarePen size={16} />
+                              </Link>
+                              <div className="p-[6px] bg-red-500 rounded hover:shadow-sm hover:shadow-red-500">
+                                <Trash size={16} />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
